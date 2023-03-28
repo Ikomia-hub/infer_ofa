@@ -99,7 +99,11 @@ class InferOfa(dataprocess.C2dImageTask):
         else:
             platform = sys.platform
             if platform == "linux":
-                subprocess.run("git lfs install", shell=True, check=True)
+                output = subprocess.check_output("git lfs install", shell=True).decode('utf-8')
+                if output != "Git LFS initialized.\n":
+                    raise Exception("Git LFS is not installed, please follow this tutorial "
+                                    "https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage"
+                                    " and rerun the plugin.")
                 print("Downloading {} weights...".format(model_name))
                 subprocess.run('cd {}; git clone https://huggingface.co/OFA-Sys/OFA-{}'.format(work_dir, model_size),
                                shell=True,
