@@ -37,7 +37,7 @@ class InferOfaParam(core.CWorkflowTaskParam):
         core.CWorkflowTaskParam.__init__(self)
         # Place default value initialization here
         # Example : self.windowSize = 25
-        self.size = "Tiny"
+        self.size = "tiny"
         self.update = True
         self.prompt = " what does the image describe?"
 
