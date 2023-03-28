@@ -105,12 +105,14 @@ class InferOfa(dataprocess.C2dImageTask):
                                shell=True,
                                check=True)
 
-            if platform == "win32":
+            elif platform == "win32":
                 subprocess.run("git lfs install", shell=True, check=True)
                 print("Downloading {} weights...".format(model_name))
                 subprocess.check_call(['git', 'clone', 'https://huggingface.co/OFA-Sys/OFA-{}'.format(model_size)],
                                       cwd= work_dir,
                                       shell=True)
+            else:
+                raise Exception("Only linux and win32 are supported")
 
     def run(self):
         # Core function of your process
