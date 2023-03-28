@@ -45,6 +45,7 @@ class InferOfaWidget(core.CWorkflowTaskWidget):
         self.combo_model = pyqtutils.append_combo(self.grid_layout, "Model size")
         for model_size in model_sizes:
             self.combo_model.addItem(model_size)
+        self.combo_model.setCurrentText(self.parameters.size)
 
         self.edit_prompt = pyqtutils.append_edit(self.grid_layout, "Text prompt", self.parameters.prompt)
         # PyQt -> Qt wrapping
@@ -58,9 +59,13 @@ class InferOfaWidget(core.CWorkflowTaskWidget):
 
         # Get parameters from widget
         # Example : self.parameters.windowSize = self.spinWindowSize.value()
-        self.parameters.size = self.combo_model.currentText()
+        model_size = self.combo_model.currentText()
+
+        if self.parameters.size != model_size:
+            self.parameters.update = True
+            self.parameters.size = model_size
+
         self.parameters.prompt = self.edit_prompt.text()
-        self.parameters.update = True
 
         # Send signal to launch the process
         self.emit_apply(self.parameters)
