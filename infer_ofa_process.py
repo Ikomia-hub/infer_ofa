@@ -93,13 +93,16 @@ class InferOfa(dataprocess.C2dImageTask):
             if platform == "linux":
                 subprocess.run("git lfs install", shell=True, check=True)
                 print("Downloading {} weights...".format(model_name))
-                subprocess.run('cd {}; git clone https://huggingface.co/OFA-Sys/OFA-{}'.format(work_dir, model_size), shell=True, check=True)
-            if platform == "windows":
+                subprocess.run('cd {}; git clone https://huggingface.co/OFA-Sys/OFA-{}'.format(work_dir, model_size),
+                               shell=True,
+                               check=True)
+
+            if platform == "win32":
                 subprocess.run("git lfs install", shell=True, check=True)
                 print("Downloading {} weights...".format(model_name))
-                subprocess.run('dir {}^ git clone https://huggingface.co/OFA-Sys/OFA-{}'.format(work_dir, model_size),
-                               shell=True, check=True)
-
+                subprocess.check_call(['git', 'clone', 'https://huggingface.co/OFA-Sys/OFA-{}'.format(model_size)],
+                                      cwd= work_dir,
+                                      shell=True)
 
     def run(self):
         # Core function of your process
@@ -117,6 +120,7 @@ class InferOfa(dataprocess.C2dImageTask):
         ])
 
         if self.model is None or param.update:
+            print("self.model is none")
             self.download_if_necessary(param.size)
             model_name = "OFA-" + param.size
             work_dir = os.path.dirname(__file__)
@@ -138,6 +142,7 @@ class InferOfa(dataprocess.C2dImageTask):
         txt = " what does the image describe?"
         inputs = self.tokenizer([txt], return_tensors="pt").input_ids
         img = self.get_input(0).get_image()
+        img = Image.fromarray(img)
         patch_img = patch_resize_transform(img).unsqueeze(0)
 
         gen = self.model.generate(inputs, patch_images=patch_img, num_beams=5, no_repeat_ngram_size=3)
