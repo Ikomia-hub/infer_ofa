@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import copy
+from ikomia.utils import strtobool
 from ikomia import core, dataprocess
 from PIL import Image
 from torchvision import transforms
@@ -46,7 +47,10 @@ class InferOfaParam(core.CWorkflowTaskParam):
         # Parameters values are stored as string and accessible like a python dict
         # Example : self.windowSize = int(param_map["windowSize"])
         self.size = param_map["size"]
-        self.update = True
+        if "update" in param_map:
+            self.update = strtobool(param_map["update"])
+        else:
+            self.update = True
         self.prompt = param_map["prompt"]
 
     def get_values(self):
@@ -70,6 +74,7 @@ class InferOfa(dataprocess.C2dImageTask):
         # Add input/output of the process here
         # Example :  self.add_input(dataprocess.CImageIO())
         #           self.add_output(dataprocess.CImageIO())
+        self.add_output(dataprocess.DataDictIO())
         self.tokenizer = None
         self.model = None
         self.generator = None
@@ -123,7 +128,6 @@ class InferOfa(dataprocess.C2dImageTask):
         ])
 
         if self.model is None or param.update:
-            print("self.model is none")
             self.download_if_necessary(param.size)
             model_name = "OFA-" + param.size
             work_dir = os.path.dirname(__file__)
@@ -150,8 +154,11 @@ class InferOfa(dataprocess.C2dImageTask):
 
         gen = self.model.generate(inputs, patch_images=patch_img, num_beams=5, no_repeat_ngram_size=3)
 
-        print(self.tokenizer.batch_decode(gen, skip_special_tokens=True))
+        out = self.get_output(1)
+        out.data = {"question": txt,
+                    "answer" : self.tokenizer.batch_decode(gen, skip_special_tokens=True)[0]}
 
+        print(out.data)
         # Step progress bar:
         self.emit_step_progress()
 
