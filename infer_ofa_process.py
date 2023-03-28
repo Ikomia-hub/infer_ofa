@@ -110,7 +110,7 @@ class InferOfa(dataprocess.C2dImageTask):
                                check=True)
 
             elif platform == "win32":
-                output = subprocess.check_output("git lfs install", shell=True)
+                output = subprocess.check_output("git lfs install", shell=True).decode('utf-8')
                 if output != "Git LFS initialized.\n":
                     raise Exception("Git LFS is not installed, please follow this tutorial "
                                     "https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage?platform=windows"
