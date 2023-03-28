@@ -39,6 +39,7 @@ class InferOfaParam(core.CWorkflowTaskParam):
         # Example : self.windowSize = 25
         self.size = "Tiny"
         self.update = True
+        self.prompt = " what does the image describe?"
 
     def set_values(self, param_map):
         # Set parameters values from Ikomia application
@@ -46,12 +47,14 @@ class InferOfaParam(core.CWorkflowTaskParam):
         # Example : self.windowSize = int(param_map["windowSize"])
         self.size = param_map["size"]
         self.update = True
+        self.prompt = param_map["prompt"]
 
     def get_values(self):
         # Send parameters values to Ikomia application
         # Create the specific dict structure (string container)
         param_map = {}
         # Example : paramMap["windowSize"] = str(self.windowSize)
+        param_map["prompt"] = self.prompt
         param_map["size"] = self.size
         return param_map
 
@@ -139,7 +142,7 @@ class InferOfa(dataprocess.C2dImageTask):
             )
             param.update = False
 
-        txt = " what does the image describe?"
+        txt = param.prompt
         inputs = self.tokenizer([txt], return_tensors="pt").input_ids
         img = self.get_input(0).get_image()
         img = Image.fromarray(img)
