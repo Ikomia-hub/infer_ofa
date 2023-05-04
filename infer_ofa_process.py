@@ -56,10 +56,10 @@ class InferOfaParam(core.CWorkflowTaskParam):
     def get_values(self):
         # Send parameters values to Ikomia application
         # Create the specific dict structure (string container)
-        param_map = {}
-        # Example : paramMap["windowSize"] = str(self.windowSize)
-        param_map["prompt"] = self.prompt
-        param_map["size"] = self.size
+        param_map = {
+            "prompt": self.prompt,
+            "size": self.size
+        }
         return param_map
 
 
@@ -72,8 +72,6 @@ class InferOfa(dataprocess.C2dImageTask):
     def __init__(self, name, param):
         dataprocess.C2dImageTask.__init__(self, name)
         # Add input/output of the process here
-        # Example :  self.add_input(dataprocess.CImageIO())
-        #           self.add_output(dataprocess.CImageIO())
         self.add_output(dataprocess.DataDictIO())
         self.tokenizer = None
         self.model = None
@@ -166,9 +164,10 @@ class InferOfa(dataprocess.C2dImageTask):
 
         out = self.get_output(1)
         out.data = {"question": txt,
-                    "answer" : self.tokenizer.batch_decode(gen, skip_special_tokens=True)[0]}
+                    "answer": self.tokenizer.batch_decode(gen, skip_special_tokens=True)[0]}
 
         print(out.data)
+        self.forward_input_image(0, 0)
         # Step progress bar:
         self.emit_step_progress()
 
